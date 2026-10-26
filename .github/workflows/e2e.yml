@@ -1,0 +1,21 @@
+name: e2e
+
+# Runs the whole stack (Postgres, Kafka, Debezium, Spark, Iceberg) on a
+# GitHub runner, pushes 1,500 source transactions through it, and fails the
+# build unless reconciliation and quality checks pass. Free on public repos.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  end-to-end:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run end-to-end pipeline test
+        run: ./scripts/e2e.sh
+      - name: Tear down
+        if: always()
+        run: docker compose down -v
